@@ -36,6 +36,8 @@
   		<br />Use the above URL to do a local loop on your current websocket.
   		<br /><em>(this is a little quirky to understand the loop on the sanity check, but just understand that it verifies the server is running properly)</em>
   	</p>
+  	<h3>webhook URL</h3>
+  	<p><strong>use this url in the ACT data for the webhook:</strong> <span id="webhook_url"></span></p>
   	</div>
   	<hr />
   	<h1>send this data</h1>
@@ -64,7 +66,10 @@
 	  socket.on('api-send-response', function(data) { append_to_responses('api-send-response', data); });
 	  socket.on('webhook-response', function(data) { append_to_responses('webhook-response', data); });
 	  socket.on('sanity-webhook-response', function(data) { append_to_responses('sanity-webhook-response', data); });
-	  socket.on('token', function(data) { $('#sanity-check').text(location.href + 'sanity-check?token='+data); } );
+	  socket.on('token', function(data) {
+	  	$('#sanity-check').text(location.href + 'sanity-check?token='+data);
+	  	$('#webhook_url').text(location.href + 'webhook-response?token='+data);
+	  } );
 
 	  function append_to_responses(type, data) {
 	  	console.log("----------------------------------------\n" + '[append_to_responses] '+type);
