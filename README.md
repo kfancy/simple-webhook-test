@@ -4,7 +4,9 @@
 2. `npm install` in the root directory
 3. make .env file (see below)
 4. to run, node index.js
-
+(or, to run constantly,
+forever start --minUptime 1000 --spinSleepTime 1000 --uid webhook-tester -a -l webhook-tester index.js
+)
 #config
 
 use .env file (not tracked by github) to set up config
