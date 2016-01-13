@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Webhook Test App</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+
+      form { padding: 1em; width: 100%; }
+      form input { border: 1px solid #000; padding: 10px; width: 90%; margin-right: .5%; }
+      form input[type="submit"] { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      form textarea { width: 100%; height: 10em; padding: 0.5em; }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      
+      #responses { margin: 1em; padding: 1em; border: 1px solid #999; }
+      p.response { padding-bottom: 1em; margin-bottom: 1em; border-bottom: 1px solid #cfcfcf; }
+      
+      div.info {
+      	padding: 1em;
+      }
+      div.info button { background: rgb(130, 224, 255); border: none; padding: 2px 10px; }
+    </style>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+  	<div class="info">
+  	<h3>tester data</h3>
+  	<p>
+  		Sanity check URL: <span id="sanity-check"></span> <button id="sanity-button">click to use</button>
+  		<br />Use the above URL to do a local loop on your current websocket.
+  		<br /><em>(this is a little quirky to understand the loop on the sanity check, but just understand that it verifies the server is running properly)</em>
+  	</p>
+  	</div>
+  	<hr />
+  	<h1>send this data</h1>
+    <form action="#" method="post" id="myform">
+    	<div style="width: 65%; float: left;">
+			<div>
+				<label>send to url: </label><br /><input type="text" name="send_url" id="send_url" />
+			</div>
+    	</div>
+    	<div style="width: 34%; float: left;">
+			<div>
+				<label>send method (get or post): </label><br /><input type="text" name="send_method" id="send_method" value="post" />
+			</div>
+		</div>
+    	<div>
+	    	<label>send data: </label><br />
+	    	<textarea name="send_data" id="send_data">{ "msg": "put your JSON data to send here, and it must be valid", "some": "data" }</textarea>
+    	</div>
+      <input type="submit" name="submit" value="Send" />
+    </form>
+    <h1>Responses: </h1>
+    <div id="responses"></div>
+
+	<script>
+	  var socket = io();
+	  socket.on('api-send-response', function(data) { append_to_responses('api-send-response', data); });
+	  socket.on('webhook-response', function(data) { append_to_responses('webhook-response', data); });
+	  socket.on('sanity-webhook-response', function(data) { append_to_responses('sanity-webhook-response', data); });
+	  socket.on('token', function(data) { $('#sanity-check').text(location.href + 'sanity-check?token='+data); } );
+
+	  function append_to_responses(type, data) {
+	  	console.log("----------------------------------------\n" + '[append_to_responses] '+type);
+	  	console.log(data);
+	  	var ts = Date.now()
+	  		, datestamp = moment(ts).format('MMMM Do YYYY, h:mm:ss a')
+	  		, foo = 'no response or error???'
+	  		;
+	  	if (data.response) {
+	  		foo = "response: \n" + (typeof data.response == 'object' ? JSON.stringify(data.response) : data.response);
+	  	}
+	  	if (data.error) {
+	  		foo = "Error: \n" + (typeof data.error == 'object' ? JSON.stringify(data.error) : data.error);
+	  	}
+	  	var msg = '<p class="response"><strong>' + type + "</strong>----------------------------------------<br />" + datestamp + " (epoch.ms: "+ts/1000+")" + "<br />" + foo + '</p>';
+	  	$('#responses').append(msg);
+	  }
+	  
+	  $('#sanity-button').on('click', function(e) {
+	  	e.preventDefault();
+	  	$('#send_url').val($('#sanity-check').text());
+	  });
+
+		$('#myform').on('submit', function(){
+			var DATA, jDATA = $('#send_data').val();
+			
+			try {
+				DATA = JSON.parse(jDATA);
+			} catch (e) {
+				alert('the JSON is not valid, please send only valid JSON');
+				console.log('bad json?');
+				console.log(jDATA);
+				return false;
+			}
+			
+			socket.emit('api-send', {
+				sendBody: DATA,
+				sendURL: $('#send_url').val(),
+				method: $('#send_method').val().toLowerCase()
+			});
+			append_to_responses('send', {
+				response: 'sending data to URL:'+$('#send_url').val()+'<br />(request method: '+$('#send_method').val().toLowerCase()+')'
+			});
+			//$('#send_data').val('');
+			//$('#send_url').val('');
+			//$('#send_method').val('');
+			return false;
+		});
+		
+	</script>
+
+  </body>
+</html>

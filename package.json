@@ -1,0 +1,23 @@
+{
+  "name": "simple-webhook-test",
+  "version": "0.1.0",
+  "description": "simple tool to push a request somewhere, and provide a webhook and way to view it",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kfancy/simple-webhook-test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "kfancy",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "debug": "^2.2.0",
+    "dotenv": "^1.2.0",
+    "express": "latest",
+    "request": "^2.67.0",
+    "socket.io": "^1.4.4"
+  }
+}
