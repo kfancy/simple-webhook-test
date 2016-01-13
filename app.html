@@ -33,26 +33,27 @@
   	<div class="info">
   	<h1>Webhook test loop</h1>
 		<div style="float: left; width: 48%;">
-			<h4>tester data</h4>
-			<p>
-				Sanity check URL: <span id="sanity-check"></span><br /><button class="smallcmd" id="sanity-button">click to use</button>
-				<br />Use the above URL to do a local loop on your current websocket.
-				<br /><em style="display: inline-block; margin: 1em 1em 0;">(this is a little quirky to understand the loop on the sanity check, but just understand that it verifies the server is running properly...<br />	you will see in the log a series of responses "send", "api-send-response", "sanity-webhook-response")</em>
-			</p>
-		</div>
-		<div style="float: left; width: 48%;">
 			<h4>your live webhook URL</h4>
 			<p>
 				<em>note: this URL changes when you reload your page, or the server refreshes the websocket</em>
 			</p>
 			<p>&nbsp;</p>
 			<p>
-				<strong>use this url in the ACT "futures" for the webhook:</strong> <span id="webhook_url"></span>
-				<br /><strong>OR:</strong> put the string "WEBHOOK_URL" where you want the URL to appear in your JSON object, and it will be swapped
+				<strong>use this url in the ACT "futures" for the webhook:</strong>
+				<br /><span id="webhook_url"></span>
+				<br /><br /><strong>OR:</strong> put the string "WEBHOOK_URL" where you want the URL to appear in your JSON object, and it will be swapped
 			</p>
 			<p>&nbsp;</p>
 			<p><button class="smallcmd" id="ping-button">click to ping</button>
 				<br />clicking the above button will send a test message to the webhook response endpoint, and should return to here via websocket (as expected)
+			</p>
+		</div>
+		<div style="float: left; width: 48%;">
+			<h4>tester data</h4>
+			<p>
+				Sanity check URL: <span id="sanity-check"></span><br /><button class="smallcmd" id="sanity-button">click to use</button>
+				<br />Use the above URL to do a local loop on your current websocket.
+				<br /><em style="display: inline-block; margin: 1em 1em 0;">(this is a little quirky to understand the loop on the sanity check, but just understand that it verifies the server is running properly...<br />	you will see in the log a series of responses "send", "api-send-response", "sanity-webhook-response")</em>
 			</p>
 		</div>
 		<br clear="all" />
@@ -72,18 +73,18 @@
 		</div>
     	<div>
 	    	<label>send data: </label><br />
-	    	<textarea name="send_data" id="send_data">{ "msg": "put your JSON data to send here, and it must be valid", "some": "data", "webhhook_url": "WEBHOOK_URL" }</textarea><!--{
-	"act":{
-		"kind":"exemplar",
-		"persist":true,
-		"target":"Business Topics",
-		"target_path": "Business Topics.Automobile.Auto Brands.Smart Automobile",
-		"target_key": "r9w1V5mI0tXhCcJBBLCqMQ==",
-		"value":0.1
-		},
-	"future":{
-		"webhhook_url": "WEBHOOK_URL"
-	}-->
+			<textarea name="send_data" id="send_data">{ "msg": "put your JSON data to send here, and it must be valid", "some": "data", "webhhook_url": "WEBHOOK_URL" }</textarea><!--{
+"act":{
+	"kind":"exemplar",
+	"persist":true,
+	"target":"Business Topics",
+	"target_path": "Business Topics.Automobile.Auto Brands.Smart Automobile",
+	"target_key": "r9w1V5mI0tXhCcJBBLCqMQ==",
+	"value":0.1
+	},
+"future":{
+	"webhhook_url": "WEBHOOK_URL"
+}-->
     	</div>
       <input type="submit" name="submit" value="Send" />
     </form>
