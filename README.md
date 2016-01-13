@@ -17,3 +17,9 @@ PORT=3333
 ```
 
 (change port number to whatever you want to run the app under)
+
+#usage
+
+put the URL and method into the form of where you want the app to send to
+
+in the app data, either use the webhook URL directly (from the top of the page), or use the key "WEBHOOK_URL" in your JSON data and it will be replaced on send.

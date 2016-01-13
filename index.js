@@ -22,7 +22,7 @@ app.get('/', function(req, res){
 app.all('/webhook-response', function(req, res){
 	if (req.query && req.query.token) {
 		if (sockets[req.query.token]) {
-			sockets[req.query.token].emit('webhook-response', req.body || { error: 'empty response from server/api' });
+			sockets[req.query.token].emit('webhook-response', { response: req.body || { error: 'empty response from server/api' } });
 			res.send({ status: 'ok', from: 'webhook-response' });
 		} else {
 			res.send({ error: 'no socket found for the token: ' + req.query.token});
@@ -35,8 +35,9 @@ app.all('/webhook-response', function(req, res){
 app.all('/sanity-check', function(req, res) {
 	if (req.query && req.query.token) {
 		if (sockets[req.query.token]) {
-			sockets[req.query.token].emit('sanity-webhook-response', { response: 'sanity check loop, data: '+JSON.stringify(req.body) });
 			res.send({ status: 'ok', from: 'sanity-check' });
+			// mimic delay
+			setTimeout(function() { sockets[req.query.token].emit('sanity-webhook-response', { response: 'sanity check loop, data: '+JSON.stringify(req.body) }); }, 1000);
 		} else {
 			res.send({ error: 'no socket found for the token: ' + req.query.token});
 		}

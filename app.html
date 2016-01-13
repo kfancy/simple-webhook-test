@@ -21,7 +21,8 @@
       div.info {
       	padding: 1em;
       }
-      div.info button { background: rgb(130, 224, 255); border: none; padding: 2px 10px; }
+      button.smallcmd { background: rgb(130, 224, 255); border: none; padding: 2px 10px; }
+      div.info p { line-height: 1.5em; margin-left: 1em; font-size: 0.85em; }
     </style>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
@@ -30,22 +31,38 @@
   </head>
   <body>
   	<div class="info">
-  	<h3>tester data</h3>
-  	<p>
-  		Sanity check URL: <span id="sanity-check"></span> <button id="sanity-button">click to use</button>
-  		<br />Use the above URL to do a local loop on your current websocket.
-  		<br /><em>(this is a little quirky to understand the loop on the sanity check, but just understand that it verifies the server is running properly)</em>
-  	</p>
-  	<p>&nbsp;</p>
-  	<h3>webhook URL</h3>
-  	<p><strong>use this url in the ACT data for the webhook:</strong> <span id="webhook_url"></span></p>
+  	<h1>Webhook test loop</h1>
+		<div style="float: left; width: 48%;">
+			<h4>tester data</h4>
+			<p>
+				Sanity check URL: <span id="sanity-check"></span><br /><button class="smallcmd" id="sanity-button">click to use</button>
+				<br />Use the above URL to do a local loop on your current websocket.
+				<br /><em style="display: inline-block; margin: 1em 1em 0;">(this is a little quirky to understand the loop on the sanity check, but just understand that it verifies the server is running properly...<br />	you will see in the log a series of responses "send", "api-send-response", "sanity-webhook-response")</em>
+			</p>
+		</div>
+		<div style="float: left; width: 48%;">
+			<h4>your live webhook URL</h4>
+			<p>
+				<em>note: this URL changes when you reload your page, or the server refreshes the websocket</em>
+			</p>
+			<p>&nbsp;</p>
+			<p>
+				<strong>use this url in the ACT "futures" for the webhook:</strong> <span id="webhook_url"></span>
+				<br /><strong>OR:</strong> put the string "WEBHOOK_URL" where you want the URL to appear in your JSON object, and it will be swapped
+			</p>
+			<p>&nbsp;</p>
+			<p><button class="smallcmd" id="ping-button">click to ping</button>
+				<br />clicking the above button will send a test message to the webhook response endpoint, and should return to here via websocket (as expected)
+			</p>
+		</div>
+		<br clear="all" />
   	</div>
-  	<hr />
+<hr />
   	<h1>send this data</h1>
     <form action="#" method="post" id="myform">
     	<div style="width: 65%; float: left;">
 			<div>
-				<label>send to url: </label><br /><input type="text" name="send_url" id="send_url" />
+				<label>send to url: </label><br /><input type="text" name="send_url" id="send_url" value="http://wx.e16.r88r.net/wxpostact" />
 			</div>
     	</div>
     	<div style="width: 34%; float: left;">
@@ -55,11 +72,22 @@
 		</div>
     	<div>
 	    	<label>send data: </label><br />
-	    	<textarea name="send_data" id="send_data">{ "msg": "put your JSON data to send here, and it must be valid", "some": "data" }</textarea>
+	    	<textarea name="send_data" id="send_data">{ "msg": "put your JSON data to send here, and it must be valid", "some": "data", "webhhook_url": "WEBHOOK_URL" }</textarea><!--{
+	"act":{
+		"kind":"exemplar",
+		"persist":true,
+		"target":"Business Topics",
+		"target_path": "Business Topics.Automobile.Auto Brands.Smart Automobile",
+		"target_key": "r9w1V5mI0tXhCcJBBLCqMQ==",
+		"value":0.1
+		},
+	"future":{
+		"webhhook_url": "WEBHOOK_URL"
+	}-->
     	</div>
       <input type="submit" name="submit" value="Send" />
     </form>
-    <h1>Responses: </h1>
+    <h1>Responses: <button class="smallcmd" id="clear-log">clear</button></h1>
     <div id="responses"></div>
 
 	<script>
@@ -73,8 +101,8 @@
 	  } );
 
 	  function append_to_responses(type, data) {
-	  	console.log("----------------------------------------\n" + '[append_to_responses] '+type);
-	  	console.log(data);
+	  	//console.log("----------------------------------------\n" + '[append_to_responses] '+type);
+	  	//console.log(data);
 	  	var ts = Date.now()
 	  		, datestamp = moment(ts).format('MMMM Do YYYY, h:mm:ss a')
 	  		, foo = 'no response or error???'
@@ -94,8 +122,40 @@
 	  	$('#send_url').val($('#sanity-check').text());
 	  });
 
+	  $('#clear-log').on('click', function(e) {
+	  	e.preventDefault();
+	  	$('#responses').html('');
+	  });
+
+	  $('#ping-button').on('click', function(e) {
+	  	e.preventDefault();
+	  	var hookURL = $('#webhook_url').text();
+	  	$.ajax({
+	  		url: hookURL,
+	  		method: 'post',
+	  		contentType: "application/json; charset=utf-8",
+			dataType: "json",
+	  		data: JSON.stringify({
+	  			some: "data",
+	  			msg: "ping test!"
+	  		}),
+	  		success: function(err, response) {
+				console.log('ping test! SUCCESS');
+				console.log(response);
+			},
+	  		failure: function(err) {
+				console.log('ping test! ERROR');
+				console.log(err);
+			}
+	  	});
+	  });
+
 		$('#myform').on('submit', function(){
 			var DATA, jDATA = $('#send_data').val();
+			
+			if (/WEBHOOK_URL/.test(jDATA)) {
+				jDATA = jDATA.replace(/WEBHOOK_URL/g, $('#webhook_url').text());
+			}
 			
 			try {
 				DATA = JSON.parse(jDATA);
